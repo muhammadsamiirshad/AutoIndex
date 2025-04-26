@@ -1,15 +1,4 @@
-# Copyright (c) 2022 Huawei Technologies Co.,Ltd.
-#
-# openGauss is licensed under Mulan PSL v2.
-# You can use this software according to the terms and conditions of the Mulan PSL v2.
-# You may obtain a copy of Mulan PSL v2 at:
-#
-#          http://license.coscl.org.cn/MulanPSL2
-#
-# THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
-# EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
-# MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
-# See the Mulan PSL v2 for more details.
+
 
 import re
 from collections import defaultdict
@@ -616,6 +605,32 @@ def flatten(iterable):
     for _iter in iterable:
         if hasattr(_iter, '__iter__') and not isinstance(_iter, str):
             for item in flatten(_iter):
-                yield item
+                yield _iter
         else:
             yield _iter
+
+
+def create_sql_connection_string(server, database, auth_type='windows', username='', password=''):
+    """
+    Create a properly formatted SQL Server connection string that works consistently
+    across different parts of the application.
+    
+    Args:
+        server (str): SQL Server instance name
+        database (str): Database name
+        auth_type (str): 'windows' or 'sql'
+        username (str): SQL Server username (when auth_type is 'sql')
+        password (str): SQL Server password (when auth_type is 'sql')
+        
+    Returns:
+        str: Properly formatted connection string
+    """
+    # Use raw string to avoid escape character issues
+    conn_str = f"DRIVER={{ODBC Driver 17 for SQL Server}};Server={server};Database={database};"
+    
+    if auth_type.lower() == 'windows':
+        conn_str += "Trusted_Connection=yes;"
+    else:
+        conn_str += f"UID={username};PWD={password};"
+        
+    return conn_str
